@@ -9,7 +9,7 @@ import atm
 #
 # [Stretch] separate into two functions. One that initialises the denominations
 # available and one that can Withdraw(int amount). If the withdrawal is successful (meaning there's sufficient notes
-# to do it), those notes are removed. Meaning that you can setup an initial amount of cash in the atm and call
+# to do it), those notes are removed. Meaning that you can set up an initial amount of cash in the atm and call
 # Withdraw with different amounts each time until there's no money left
 
 # Initialize the atm with the banknotes
@@ -18,25 +18,29 @@ import atm
 choosing_operation = True
 withdraw_operation = 1
 add_money_operation = 2
+stop_operation = 3
 
 while choosing_operation:
     operation_type = input(
         f"Hello! If you would like to withdraw money press {withdraw_operation} and if you would like "
-        f"to add money to the atm press {add_money_operation} ")
+        f"to add money to the atm press {add_money_operation}, if you want to leave press {stop_operation} ")
     try:
         operation_type = int(operation_type)
     except ValueError:
         print("This is not a valid number...")
         continue
 
-    if operation_type == withdraw_operation:
-        money_from_atm = atm.withdraw_money()
-        print(money_from_atm)
+    if operation_type == stop_operation:
         choosing_operation = False
 
+    elif operation_type == withdraw_operation:
+        money_from_atm = atm.withdraw_money()
+        print(f"Here is your money {money_from_atm}")
+        continue
+
     elif operation_type == add_money_operation:
-        current_operation = add_money_operation
-        choosing_operation = False
+        atm.add_money()
+        continue
 
     else:
         print(f"{operation_type} in not a valid operation number.")
