@@ -6,30 +6,8 @@
 
 # [Stretch] separate into two functions. One that initialises the denominations
 # available and one that can Withdraw(int amount). If the withdrawal is successful (meaning there's sufficient notes
-# to do it), those notes are removed. Meaning that you can setup an initial amount of cash in the atm and call
+# to do it), those notes are removed. Meaning that you can set up an initial amount of cash in the atm and call
 # Withdraw with different amounts each time until there's no money left
-
-class Atm:
-    # Format x$ - amount of notes
-    money_in_atm = {
-        5: 1,
-        20: 3,
-        50: 2,
-        100: 1,
-    }
-
-    def add_money(self, money_to_add):
-        for banknote in money_to_add:
-            if banknote in self.money_in_atm:
-                self.money_in_atm[banknote] += 1
-            else:
-                self.money_in_atm[banknote] = 1
-
-    def remove_money(self, money_to_remove):
-        for banknote in money_to_remove:
-            self.money_in_atm[banknote] -= 1
-            if self.money_in_atm[banknote] == 0:
-                self.money_in_atm.pop(banknote)
 
 
 class State:
@@ -48,19 +26,6 @@ class State:
 
     def clone(self):
         return State(self.remaining.copy(), self.used.copy())
-
-
-def check_amount():
-    while True:
-        amount_to_withdraw = input("How much money would you like to withdraw? ")
-        try:
-            amount_to_withdraw = int(amount_to_withdraw)
-        except ValueError:
-            print("This is not a valid number...")
-            continue
-
-        else:
-            return amount_to_withdraw
 
 
 def get_amount():
@@ -85,71 +50,104 @@ def get_amount():
             continue
 
 
-def remove_same_nominals(self, note):
+def check_amount():
+    while True:
+        amount_to_withdraw = input("How much money would you like to withdraw? ")
+        try:
+            amount_to_withdraw = int(amount_to_withdraw)
+        except ValueError:
+            print("This is not a valid number...")
+            continue
+
+        else:
+            return amount_to_withdraw
+
+
+def remove_same_nominals_from_list(remaining_money, note):
     # remove all occurrences of the banknote
-    updated_list = [i for i in self if i != note]
+    updated_list = [i for i in remaining_money if i != note]
 
     return updated_list
 
 
-def try_withdraw_from_atm(number):
-    # Create a list of all notes atm has
-    atm = Atm()
+class Atm:
+    def __init__(self):
+        # Format x$ - amount of notes
+        self.money_in_atm = {
+            5: 1,
+            10: 1,
+            20: 3,
+            50: 2,
+            100: 1,
+        }
 
-    list_of_atm_banknotes = []
-    for note in atm.money_in_atm:
-        number_of_notes = atm.money_in_atm[note]
-        for banknote in range(number_of_notes):
-            list_of_atm_banknotes.append(note)
+    def add_money(self, money_to_add):
+        for banknote in money_to_add:
+            if banknote in self.money_in_atm:
+                self.money_in_atm[banknote] += 1
+            else:
+                self.money_in_atm[banknote] = 1
 
-    list_of_atm_banknotes.sort(reverse=True)
+    def remove_money(self, money_to_remove):
+        for banknote in money_to_remove:
+            self.money_in_atm[banknote] -= 1
+            if self.money_in_atm[banknote] == 0:
+                self.money_in_atm.pop(banknote)
 
-    # Add initial State to the checklist
-    states_to_check = []
-    first_state_used = []
-    initial_state = State(list_of_atm_banknotes.copy(), first_state_used.copy())
-    states_to_check.append(initial_state)
+    def try_withdraw_from_atm(self, number):
+        # Create a list of all notes atm has
+        list_of_atm_banknotes = []
+        for note in self.money_in_atm:
+            number_of_notes = self.money_in_atm[note]
+            for banknote in range(number_of_notes):
+                list_of_atm_banknotes.append(note)
 
-    while states_to_check:
-        current_state = states_to_check[0]
-        states_to_check.remove(current_state)
-        if current_state.used_sum() == number:
-            # With successful withdrawal remove money from atm
-            money_to_withdraw = current_state.used
-            atm.remove_money(money_to_withdraw)
-            return money_to_withdraw
-        else:
-            # Generate all valid children states and add to the checklist
-            while current_state.remaining:
-                banknote = current_state.remaining[0]
-                if number < banknote:
-                    current_state.remaining = remove_same_nominals(current_state.remaining, banknote)
-                else:
-                    new_state = current_state.clone()
-                    new_state.remaining.remove(banknote)
-                    new_state.used.append(banknote)
-                    # State is only valid if the sum did not go over the number and there is enough remaining to still
-                    # make the number
-                    remaining_to_withdraw = number - new_state.used_sum()
-                    if 0 <= remaining_to_withdraw <= new_state.remaining_sum():
-                        states_to_check.append(new_state)
-                    # After checking validity remove current variant of note from the state
-                    current_state.remaining = remove_same_nominals(current_state.remaining, banknote)
+        list_of_atm_banknotes.sort(reverse=True)
 
-    return "ERROR"
+        # Add initial State to the checklist
+        states_to_check = []
+        first_state_used = []
+        initial_state = State(list_of_atm_banknotes.copy(), first_state_used.copy())
+        states_to_check.append(initial_state)
 
+        while states_to_check:
+            current_state = states_to_check[0]
+            states_to_check.remove(current_state)
+            if current_state.used_sum() == number:
+                # With successful withdrawal remove money from atm
+                money_to_withdraw = current_state.used
+                self.remove_money(money_to_withdraw)
+                return f"Here is your money: {money_to_withdraw}"
+            else:
+                # Generate all valid children states and add to the checklist
+                while current_state.remaining:
+                    banknote = current_state.remaining[0]
+                    if number < banknote:
+                        current_state.remaining = remove_same_nominals_from_list(current_state.remaining, banknote)
+                    else:
+                        new_state = current_state.clone()
+                        new_state.remaining.remove(banknote)
+                        new_state.used.append(banknote)
+                        # State is only valid if the sum did not go over the number and there is enough remaining to
+                        # still make the number
+                        remaining_to_withdraw = number - new_state.used_sum()
+                        if 0 <= remaining_to_withdraw <= new_state.remaining_sum():
+                            states_to_check.append(new_state)
+                        # After checking validity remove current variant of note from the state
+                        current_state.remaining = remove_same_nominals_from_list(current_state.remaining, banknote)
 
-def add_money_to_atm(money_to_add):
-    atm = Atm()
-    atm.add_money(money_to_add)
+        return "ERROR"
 
+    def withdraw_money(self):
+        amount = check_amount()
+        return self.try_withdraw_from_atm(amount)
 
-def withdraw_money():
-    amount = check_amount()
-    return try_withdraw_from_atm(amount)
+    def add_money_to_atm(self):
+        amount = get_amount()
+        self.add_money(amount)
+        print(f"Total of {sum(amount)} added to the atm.")
 
-
-def add_money():
-    amount = get_amount()
-    add_money_to_atm(amount)
-    print(f"Total of {sum(amount)} added to the atm.")
+    def check_balance(self):
+        print("Money in atm:")
+        for banknote, amount in self.money_in_atm.items():
+            print("{}$ (x{})".format(banknote, amount))

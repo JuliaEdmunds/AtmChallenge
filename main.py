@@ -18,28 +18,39 @@ import atm
 choosing_operation = True
 withdraw_operation = 1
 add_money_operation = 2
-stop_operation = 3
+check_balance_operation = 3
+exit_operation = 4
+
+atm = atm.Atm()
 
 while choosing_operation:
     operation_type = input(
-        f"Hello! If you would like to withdraw money press {withdraw_operation} and if you would like "
-        f"to add money to the atm press {add_money_operation}, if you want to leave press {stop_operation} ")
+        f"Hello! Please choose one of the operations:\n"
+        f"{withdraw_operation}: withdraw money\n"
+        f"{add_money_operation}: add money to the atm\n"
+        f"{check_balance_operation}: check atm's balance\n"
+        f"{exit_operation}: exit\n")
     try:
         operation_type = int(operation_type)
     except ValueError:
         print("This is not a valid number...")
         continue
 
-    if operation_type == stop_operation:
+    if operation_type == exit_operation:
+        print("Bye")
         choosing_operation = False
 
     elif operation_type == withdraw_operation:
         money_from_atm = atm.withdraw_money()
-        print(f"Here is your money {money_from_atm}")
+        print(money_from_atm)
         continue
 
     elif operation_type == add_money_operation:
-        atm.add_money()
+        atm.add_money_to_atm()
+        continue
+
+    elif operation_type == check_balance_operation:
+        atm.check_balance()
         continue
 
     else:
